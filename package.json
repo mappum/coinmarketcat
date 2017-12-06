@@ -1,0 +1,34 @@
+{
+  "name": "catstats",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "axios": "^0.17.1",
+    "babel-polyfill": "^6.26.0",
+    "bankai": "^9.0.1",
+    "bootstrap": "^3.3.7",
+    "browser-request": "^0.3.3",
+    "choo": "^6.6.0",
+    "choo-devtools": "^2.2.0",
+    "randomcolor": "^0.5.3",
+    "request": "^2.83.0"
+  },
+  "scripts": {
+    "start": "bankai start app.js",
+    "build": "bankai build app.js && rm -rf docs && mv dist docs && echo catstats.io > docs/CNAME"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mappum/catstats.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mappum/catstats/issues"
+  },
+  "homepage": "https://github.com/mappum/catstats#readme",
+  "browser": {
+    "request": "browser-request"
+  }
+}
