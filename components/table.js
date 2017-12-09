@@ -1,6 +1,5 @@
 let html = require('choo/html')
 let table = require('./table.js')
-let Chart = require('chart.js')
 let css = require('sheetify')
 
 css`

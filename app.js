@@ -9,7 +9,9 @@ let main = require('./components/main.js')
 let app = choo()
 app.use(statStore)
 app.route('/', mainView)
-app.mount('body')
+
+loadScript('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js')
+  .then(() => app.mount('body'))
 
 css('bootstrap/dist/css/bootstrap.css')
 css`
@@ -93,4 +95,17 @@ function getCattributeRows (priceData, catData) {
 
   return Object.entries(cattributes)
     .map(([ name, data ]) => Object.assign(data, { name }))
+}
+
+function loadScript (src, integrity) {
+  return new Promise((resolve) => {
+    let el = html`
+      <script
+        src="${src}"
+        crossorigin="anonymous"
+        ></script>
+    `
+    el.onload = resolve
+    document.head.appendChild(el)
+  })
 }
