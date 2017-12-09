@@ -27,7 +27,7 @@ document.head.appendChild(html`
 function mainView (state, emit) {
   return html`
     <body>
-      ${header(state.cattributes)}
+      ${header(state.cattributes, state.dailyData)}
       ${main(state.cattributes)}
     </body>
   `
@@ -38,24 +38,32 @@ function statStore (state, emitter) {
   state.loading = true
   state.cattributes = []
 
-  request('https://api.catstats.io/prices/cattributes', (err, res) => {
+  request('https://api.catstats.io/prices', (err, res) => {
     if (err) {
       // TODO: add error to state to tell user there was an error
       return console.log(error.stack)
     }
-    state.priceData = JSON.parse(res.body)
+    state.dailyData = JSON.parse(res.body)
 
-    request('https://api.catstats.io/stats/cattributes', (err, res) => {
+    request('https://api.catstats.io/prices/cattributes', (err, res) => {
       if (err) {
         // TODO: add error to state to tell user there was an error
         return console.log(error.stack)
       }
+      state.priceData = JSON.parse(res.body)
 
-      state.loading = false
-      state.catData = JSON.parse(res.body)
-      state.cattributes = getCattributeRows(state.priceData, state.catData)
+      request('https://api.catstats.io/stats/cattributes', (err, res) => {
+        if (err) {
+          // TODO: add error to state to tell user there was an error
+          return console.log(error.stack)
+        }
 
-      emitter.emit('render') //rebuild html whatever page you're on
+        state.loading = false
+        state.catData = JSON.parse(res.body)
+        state.cattributes = getCattributeRows(state.priceData, state.catData)
+
+        emitter.emit('render') //rebuild html whatever page you're on
+      })
     })
   })
 }
@@ -98,6 +106,7 @@ function getCattributeRows (priceData, catData) {
 }
 
 function loadScript (src, integrity) {
+  document ? document : null;
   return new Promise((resolve) => {
     let el = html`
       <script
