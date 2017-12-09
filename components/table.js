@@ -1,6 +1,29 @@
 let html = require('choo/html')
 let table = require('./table.js')
 let Chart = require('chart.js')
+let css = require('sheetify')
+
+css`
+  th {
+    white-space: nowrap;
+  }
+
+  th:first-child, td:first-child {
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+  }
+
+  tbody > tr {
+    height: 63px;
+    border-bottom: 1px solid #ddd;
+    font-size: 12px;
+  }
+
+  tbody > tr > td {
+    padding: 6px;
+    vertical-align: middle !important;
+  }
+`
 
 module.exports = function (cattributes) {
   cattributes.sort((a, b) => b.multiplier - a.multiplier)
@@ -11,7 +34,7 @@ module.exports = function (cattributes) {
           <tr role="row" style="height: 35px; border-top: 1px solid #ddd; font-size: 12px">
             <th class="text-center" rowspan="1" colspan="1" style="width: 40px;" aria-label="#">#</th>
             <th tabindex="0" rowspan="1" colspan="1" style="width: 115px;" aria-label="Name: activate to sort column ascending">Name</th>
-            <th style="white-space: nowrap;" class="text-right" data-mobile-text="M. Cap" tabindex="0" aria-controls="currencies" rowspan="1" colspan="1" style="width: 120px;" aria-label="M. Cap: activate to sort column descending">Avg Price / Avg Gen Price</th>
+            <th style="white-space: nowrap;" class="text-right" data-mobile-text="M. Cap" tabindex="0" aria-controls="currencies" rowspan="1" colspan="1" style="width: 120px;" aria-label="M. Cap: activate to sort column descending">Value (Price / Gen Price)</th>
             <th class="text-right" data-mobile-text="Volume" tabindex="0" aria-controls="currencies" rowspan="1" colspan="1" style="width: 113px;" aria-label="Volume: activate to sort column descending">Volume (24h)</th>
             <th class="text-right" title="The number of coins in existence available to the public" data-mobile-text="Supply" tabindex="0" aria-controls="currencies" rowspan="1" colspan="1" style="width: 154px;" aria-label="Supply: activate to sort column descending"># Cats</th>
             <th class="text-right" data-mobile-text="Change" tabindex="0" aria-controls="currencies" rowspan="1" colspan="1" style="width: 109px;" aria-label="Change: activate to sort column descending">Change (24h)</th>
@@ -35,20 +58,18 @@ function row (cattribute, i) {
       </td>
       <td class="no-wrap market-cap text-right" data-usd="2.16886492313e+11" data-btc="16724487.0">${cattribute.multiplier.toFixed(3)}x</td>
       <td class="no-wrap text-right">
-          <a href="/currencies/bitcoin/#markets" class="price" data-usd="12968.2" data-btc="1.0">${cattribute.volume || 0} ETH</a>
+          <a href="/currencies/bitcoin/#markets" class="price" data-usd="12968.2" data-btc="1.0">${(cattribute.dailyVolume || 0).toFixed(4)} ETH</a>
       </td>
       <td class="no-wrap text-right circulating-supply">
-        <span data-supply-container="">${cattribute.cats || 0}</span>
+        <span data-supply-container="">${commas(cattribute.count || 0)}</span>
       </td>
-      <td class="no-wrap percent-24h   text-right positive_change" data-usd="9.19" data-btc="0.00">${(cattribute.changePercent || 0).toFixed(2)}%</td>
-      <td>${chart(cattribute)}</td>
+      <td class="no-wrap percent-24h   text-right positive_change" data-usd="9.19" data-btc="0.00">${(cattribute.percentChange || 0).toFixed(2)}%</td>
+      <td>${chart(cattribute.weeklyMultipliers)}</td>
     </tr>
   `
 }
 
-function chart (cattribute) {
-  let data = [12, 19, 30, 15, 12, 13, 12, 19, 38, 15, 12, 13, 12, 19, 30, 15, 12, 13]
-
+function chart (data) {
   let el = html`<canvas
     height="50"
     width="166"
@@ -58,7 +79,7 @@ function chart (cattribute) {
   let chart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: new Array(18),
+      labels: new Array(data.length),
       datasets: [{
         data,
         borderColor: '#E3CB7C',
@@ -84,4 +105,14 @@ function chart (cattribute) {
     }
   })
   return el
+}
+
+function commas (n) {
+  let str = String(n)
+  let groups = []
+  while (str.length > 0) {
+    groups.push(str.slice(-3))
+    str = str.slice(0, -3)
+  }
+  return groups.reverse().join(',')
 }

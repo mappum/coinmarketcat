@@ -7,7 +7,7 @@ let header = require('./components/header.js')
 let main = require('./components/main.js')
 
 let app = choo()
-// app.use(catStore)
+app.use(statStore)
 app.route('/', mainView)
 app.mount('body')
 
@@ -17,52 +17,80 @@ css`
     font-size: 16px;
     font-family: sans-serif;
   }
-
-  th:first-child, td:first-child {
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-  }
-
-  tbody > tr {
-    height: 63px;
-    border-bottom: 1px solid #ddd;
-    font-size: 12px;
-  }
-
-  tbody > tr > td {
-    padding: 6px;
-    vertical-align: middle !important;
-  }
 `
 document.head.appendChild(html`
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway" />
 `)
 
 function mainView (state, emit) {
-  let cattributes = [
-    {name:'Gold', multiplier:2.4},
-    {name:'Whixtensions',multiplier:11.13}
-  ]
   return html`
     <body>
-      ${header(cattributes)}
-      ${main(cattributes)}
+      ${header(state.cattributes)}
+      ${main(state.cattributes)}
     </body>
   `
 }
 
-//
-// function catStore (state, emitter) {
-//   state.loading = true
-//
-//   request('https://api.catstats.io/prices/cattributes', (err, res) => {
-//     if (err) {
-//       // TODO: add error to state to tell user there was an error
-//       return console.log(error.stack)
-//     }
-//
-//     state.generations = JSON.parse(res.body)
-//     state.loading = false
-//     emitter.emit('render') //rebuild html whatever page you're on
-//   })
-// }
+
+function statStore (state, emitter) {
+  state.loading = true
+  state.cattributes = []
+
+  request('https://api.catstats.io/prices/cattributes', (err, res) => {
+    if (err) {
+      // TODO: add error to state to tell user there was an error
+      return console.log(error.stack)
+    }
+    state.priceData = JSON.parse(res.body)
+
+    request('https://api.catstats.io/stats/cattributes', (err, res) => {
+      if (err) {
+        // TODO: add error to state to tell user there was an error
+        return console.log(error.stack)
+      }
+
+      state.loading = false
+      state.catData = JSON.parse(res.body)
+      state.cattributes = getCattributeRows(state.priceData, state.catData)
+
+      emitter.emit('render') //rebuild html whatever page you're on
+    })
+  })
+}
+
+function getCattributeRows (priceData, catData) {
+  let cattributes = {}
+  for (let cattr in priceData.today[0].stats) {
+    if (cattr === '[object Object]') continue
+
+    let today = priceData.today[0].stats[cattr]
+
+    let week = []
+    for (let period of priceData.week) {
+      let point = period.stats[cattr] || {}
+      week.push(point.average || null)
+    }
+
+    let getMult = (i) => {
+      for (let j = i; j < week.length; j++) {
+        if (week[j]) return week[j]
+      }
+      return 0.001
+    }
+    let multiplier = getMult(1)
+    let prevMultiplier = getMult(1 + 24 / 6)
+    let percentChange = (multiplier - prevMultiplier / prevMultiplier) * 100
+
+    cattributes[cattr] = {
+      dailyVolume: today.sum,
+      dailyTrades: today.count,
+      weeklyMultipliers: week.reverse(),
+      multiplier,
+      percentChange,
+      count: catData[cattr]
+    }
+  }
+
+  return Object.entries(cattributes)
+    .map(([ name, data ]) => Object.assign(data, { name }))
+}
