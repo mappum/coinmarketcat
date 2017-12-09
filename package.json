@@ -9,6 +9,7 @@
     "bankai": "^9.0.1",
     "bootstrap": "^3.3.7",
     "browser-request": "^0.3.3",
+    "chart.js": "^2.7.1",
     "choo": "^6.6.0",
     "choo-devtools": "^2.2.0",
     "randomcolor": "^0.5.3",
