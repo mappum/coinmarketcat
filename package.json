@@ -17,7 +17,7 @@
   },
   "scripts": {
     "start": "bankai start app.js",
-    "build": "bankai build app.js && rm -rf docs && mv dist docs && echo catstats.io > docs/CNAME"
+    "build": "bankai build app.js && rm -rf docs && mv dist docs && echo coinmarketcat.co > docs/CNAME"
   },
   "repository": {
     "type": "git",
