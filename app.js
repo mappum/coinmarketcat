@@ -89,7 +89,7 @@ function getCattributeRows (priceData, catData) {
     }
     let multiplier = getMult(1)
     let prevMultiplier = getMult(1 + 24 / 6)
-    let percentChange = (multiplier - prevMultiplier / prevMultiplier) * 100
+    let percentChange = ((multiplier - prevMultiplier) / prevMultiplier) * 100
 
     cattributes[cattr] = {
       dailyVolume: today.sum,
