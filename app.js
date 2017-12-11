@@ -24,20 +24,21 @@ document.head.appendChild(html`
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway" />
 `)
 document.head.appendChild(html`
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-M75J38P');</script>
+  <div>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-111088276-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-111088276-1');
+    </script>
+  </div>
 `)
 
 function mainView (state, emit) {
   return html`
     <body>
-      <!-- Google Tag Manager (noscript) -->
-      <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M75J38P"
-      height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-      <!-- End Google Tag Manager (noscript) -->
       ${header(state.cattributes, state.dailyData)}
       ${main(state.cattributes)}
     </body>
